@@ -1,1 +1,74 @@
-<p>main works!</p>
+@if (userLoginGlobalSignal.logedIn()) {
+<app-header (rules)="onRules($event)" (newGame)="resetGame($event)" />
+<div class="container-fluid mt-3">
+  <div class="row">
+    <div class="col-sm-4 text-start">
+      <div [innerHTML]="rules" [hidden]="gameRules()"></div>
+    </div>
+    <form (submit)="onSubmit(); $event.preventDefault()" class="col-sm-5">
+      <div class="row">
+        <div class="col-sm-3">
+          <label for="number1"><strong>1.</strong></label>
+          <input
+            class="form-control"
+            [value]="gameGlobalSignal.game().number1 === 0 ? '' : gameGlobalSignal.game().number1"
+            (input)="updateNumber1(+$event.target.value)"
+            type="number"
+            id="number1"
+          />
+        </div>
+        <div class="col-sm-3">
+          <label for="number2"><strong>2.</strong></label>
+          <input
+            class="form-control"
+            [value]="gameGlobalSignal.game().number2 === 0 ? '' : gameGlobalSignal.game().number2"
+            (input)="updateNumber2(+$event.target.value)"
+            type="number"
+            id="number2"
+          />
+        </div>
+        <div class="col-sm-3">
+          <label for="number3"><strong>3.</strong></label>
+          <input
+            class="form-control"
+            [value]="gameGlobalSignal.game().number3 === 0 ? '' : gameGlobalSignal.game().number3"
+            (input)="updateNumber3(+$event.target.value)"
+            type="number"
+            id="number3"
+          />
+        </div>
+        <div class="col-sm-3">
+          <label for="number4"><strong>4.</strong></label>
+          <input
+            class="form-control"
+            [value]="gameGlobalSignal.game().number4 === 0 ? '' : gameGlobalSignal.game().number4"
+            (input)="updateNumber4(+$event.target.value)"
+            type="number"
+            id="number4"
+          />
+        </div>
+        <div class="col-sm-12 text-center mt-3">
+          <button class="btn btn-primary" type="submit" [disabled]="!gameForm().valid()">
+            Iesniegt
+          </button>
+        </div>
+      </div>
+    </form>
+    <div class="col-sm-3 text-start">
+      <h3>Rezultāts:</h3>
+      <ol>
+        @for (attempt of gameAttempts(); track $index) {
+        <li>
+          Skaitļi: {{ attempt.inputNumbers[0] }}, {{ attempt.inputNumbers[1] }},
+          {{ attempt.inputNumbers[2] }}, {{ attempt.inputNumbers[3] }} → Polšiņi:
+          {{ attempt.result.p }}, Aliņi: {{ attempt.result.a }}
+          @if (attempt.result.win) {
+          <strong> (UZVARA!)</strong>
+          }
+        </li>
+        }
+      </ol>
+    </div>
+  </div>
+</div>
+}

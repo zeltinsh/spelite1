@@ -7,7 +7,7 @@ import { UserInterface } from '../models/user-interface';
 })
 export class UserService {
 
-  private readonly URL: string = 'http://localhost:8080/api/v1';
+  private readonly URL: string = 'http://localhost:8090/api/v1';
 
   private http: HttpClient = inject(HttpClient);
 

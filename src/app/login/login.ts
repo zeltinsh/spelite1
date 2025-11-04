@@ -1,22 +1,23 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Field, form, maxLength, minLength, required } from '@angular/forms/signals';
-import { UserInterface } from '../models/user-interface';
+import { Router } from '@angular/router';
+import { takeUntil } from 'rxjs';
+import { UserLoginGlobalSignal } from '../models/login-global-signal';
+import { UserGlobalSignal } from '../models/user -global-signal';
 import { UserService } from '../services/user-service';
+import { BaseComponent } from '../shared/base-component';
 
 @Component({
   selector: 'app-login',
   imports: [Field],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.css'],
 })
-export class Login {
-
+export class Login extends BaseComponent {
   userService = inject(UserService);
-
-  protected readonly user = signal<UserInterface>({
-    name: '',
-    password: '',
-  });
+  router = inject(Router);
+  user = inject(UserGlobalSignal).user;
+  userLoginGlobalSignal = inject(UserLoginGlobalSignal);
 
   protected readonly loginForm = form(this.user, (p) => {
     required(p.name, { message: 'Name is required' });
@@ -30,15 +31,19 @@ export class Login {
 
   onLogIn() {
     if (this.loginForm().valid()) {
-      this.userService.logIn(this.user()).subscribe({
-        next: (response) => {
-          console.log('User found:', response);
-        },
-        error: (error) => {
-          console.error('Error fetching user:', error);
-        }
-      });
+      const loginSubscription = this.userService
+        .logIn(this.user)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.user.update(() => ({ ...this.user(), id: response.body! }));
+            this.userLoginGlobalSignal.logedIn.set(true);
+            this.router.navigate(['/main']);
+          },
+          error: (error) => {
+            console.error('Error fetching user:', error);
+          },
+        });
     }
   }
-
 }
